@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import '../css/App.css';
 import '../css/DiagnosticContainer.css';
 import '../css/themePalette.css';
@@ -18,7 +18,9 @@ const dateOptions = {
   day: 'numeric',
 };
 
-function DiagnosticContainer(props) {
+const DiagnosticContainer = (props) => {
+  useEffect(() => {
+  })
   const { handleSignOut, userSession } = props;
   var today = new Date();
   const dispatch = useDispatch();

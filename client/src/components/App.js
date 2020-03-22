@@ -7,6 +7,9 @@ import { UserSession } from 'blockstack';
 import { configure, User, getConfig } from 'radiks';
 import { Connect } from '@blockstack/connect';
 import DiagnosticContainer from './DiagnosticContainer';
+import { connect } from 'react-redux';
+import { setLoginLoading } from '../redux/actions/actions'
+
 
 const RADIKS_URL = process.env.REACT_APP_QA_URL || 'http://127.0.0.1:1260'; // TODO this will change to wherever our radiks server will be hosted in prod
 
@@ -15,12 +18,16 @@ const makeUserSession = () => {
 };
 
 class App extends Component {
-  constructor(props) {
+  constructor(props, { loginLoading, setLoading }) {
     super(props);
     this.userSession = new UserSession({ appConfig });
   }
 
-  state = { url: '', userSession: undefined };
+  state = {
+    url: '',
+    userSession: undefined,
+    isLoading: false,
+  };
 
   async componentDidMount() {
     const userSession = makeUserSession();
@@ -50,6 +57,7 @@ class App extends Component {
           userSession,
         });
         await User.createWithCurrentUser();
+        this.props.setLoading(false)
 
         this.setState({ url: window.location.origin });
       },
@@ -66,14 +74,26 @@ class App extends Component {
           {!userSession || !userSession.isUserSignedIn() ? (
             <Login />
           ) : (
-            <div>
-              <DiagnosticContainer userSession={userSession} handleSignOut={this.handleSignOut} />
-            </div>
-          )}
+              <div>
+                <DiagnosticContainer userSession={userSession} handleSignOut={this.handleSignOut} />
+              </div>
+            )}
         </div>
       </Connect>
     );
   }
 }
 
-export default App;
+
+const mapStateToProps = ({ loginLoading }) => ({
+  loginLoading,
+})
+
+const mapDispatchToProps = dispatch => ({
+  setLoading(loginLoading) {
+    dispatch(setLoginLoading(loginLoading))
+  }
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
+
